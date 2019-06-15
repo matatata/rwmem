@@ -38,6 +38,20 @@ Intel management engine and gig-e sections show up as all 0xFF):
 
     sudo ./rdmem 0xff990000 0x670000 > mac-bios.bin
     
+Set a PCIe device's link speed to PCI 1.0 or PCI 2.0 (maybe PCI 3.0 I did not try) as my MacPro3,1 does not have PCI 3.0 anyway. I needed this to force my NVMe M2 Carrier card to 5 GT/s as it only negotiates 2.5 GT/s on its own.
+
+    Usage: ./lnkspd bus slot func [target_speed]
+    
+For instance my card is bus 1 slot 0 func 0 and I want to see the current link speed and max speed:
+
+    sudo ./lnkspd 1 0 0
+    
+To set speed to PCI 2 I use
+
+    sudo ./lnkspd 1 0 0 2
+    
+Unfortunately it does not always actually change the link speed. Until then I recommend using pciutils.
+    
 
 NOTES
 ===
