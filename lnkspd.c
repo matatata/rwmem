@@ -69,7 +69,7 @@ main(
     
     
     
-#define REG(i) *(uint32_t*)(pcibuf + page_offset + (i))
+#define REG(i) (*(uint32_t*)(pcibuf + page_offset + (i)))
 
     
     unsigned vendor_device = REG(0x0);
@@ -88,6 +88,8 @@ main(
         unsigned CAP_X = REG(CAP_PTR); // Cap list register
         unsigned CAP_ID = CAP_X & 0xFF;
         
+
+
         if(CAP_ID & 0x10) {
             unsigned lnk_stat = REG(CAP_PTR+0x10) >> 16; // offset 0x12
             unsigned cur_speed = lnk_stat & 0xF;
@@ -95,25 +97,40 @@ main(
             unsigned lnk_capa = REG(CAP_PTR+0x0C);
             unsigned max_speed = lnk_capa & 0xF;
             unsigned max_width = lnk_capa >> 4 & 0x3F;
-            
+           
+ 
             printf("link speed %d (max %d) x%d (max x%d)\n",cur_speed,max_speed,neg_width,max_width);
             
             if(target_speed !=0){
                 if(target_speed != cur_speed) {
-                    printf("trying to set target link speed to %d and set retrain link bit, will then sleep 1 sec and check link speed again\n",target_speed);
+                    printf("trying to set target link speed to %d and set retrain link bit and check link speed again\n",target_speed);
                     // set target speed to max value
                     unsigned link_control_reg2 = REG(CAP_PTR+0x30);
-                    
                     link_control_reg2 &= ~0xf; // Clear lower 4 bits.
                     link_control_reg2 |= target_speed & 0xf; // set target speed
                     REG(CAP_PTR+0x30)=link_control_reg2;
-                    
-                    // Set Retrain Link bit 5 of offset 10
-                    unsigned link_ctrl_reg = REG(CAP_PTR+0x10);
-                    link_ctrl_reg |= 0x20;
-                    REG(CAP_PTR+0x10)=link_ctrl_reg;
-                    
-                    sleep(1);
+		   
+                    sleep(1);		
+                   
+	           // poll until training bit says 0
+		   unsigned training_bit = 0;
+		   while((training_bit = (REG(CAP_PTR+0x10) >> 16) & 0x800)!=0){
+   			printf("wait for training bit to return 0\n");
+			usleep(10);
+		   }
+		   
+ 
+                   // Set Retrain Link bit 5 of offset 10
+                   REG(CAP_PTR+0x10)|= 0x20;
+                  
+		  
+                   sleep(1);	
+
+		   while((training_bit = (REG(CAP_PTR+0x10) >> 16) & 0x800)!=0){
+                        printf("wait for training bit to return 0\n");
+                        usleep(10);
+                   }
+
                     
                     // check new link speed
                     lnk_stat = REG(CAP_PTR+0x10) >> 16; // offset 0x12
