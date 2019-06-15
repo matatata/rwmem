@@ -37,21 +37,6 @@ Read the "BIOS Region" of your boot ROM for analysis (the flash descriptor,
 Intel management engine and gig-e sections show up as all 0xFF):
 
     sudo ./rdmem 0xff990000 0x670000 > mac-bios.bin
-    
-Set a PCIe device's link speed to PCI 1.0 or PCI 2.0 (maybe PCI 3.0 I did not try) as my MacPro3,1 does not have PCI 3.0 anyway. I needed this to force my NVMe M2 Carrier card to 5 GT/s as it only negotiates 2.5 GT/s on its own.
-
-    Usage: ./lnkspd bus slot func [target_speed]
-    
-For instance my card is bus 1 slot 0 func 0 and I want to see the current link speed and max speed:
-
-    sudo ./lnkspd 1 0 0
-    
-To set speed to PCI 2 I use
-
-    sudo ./lnkspd 1 0 0 2
-    
-Unfortunately it does not always actually change the link speed. Until then I recommend using pciutils.
-    
 
 NOTES
 ===
@@ -61,3 +46,29 @@ NOTES
 will will generate all 0xFF since the byte-wise access is not defined.
 `rdmem` and `rdpci` will do the right thing with their copy routine.
 
+PCIe link speed (https://github.com/matatata's addition)
+===
+
+    Usage: ./lnkspd bus slot func [target_speed]
+
+I have a PCIe NVMe M2 in my MacPro3,1 PCIe slot 2 (second from below):
+
+    01:00.0 Non-Volatile memory controller: Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981 (prog-if 02 [NVM Express])
+
+But it only negotiates 2.5GT/s link speed. I only get around 700MB/s R/W in BlackMagic Disk Speed App. I can read the link speed with
+
+    sudo ./lnkspd 01 00 00
+    
+it echoes
+
+    Vendor 144d Device a808 link speed 1 (max 3) x4 (max x4)
+    
+Now setting the link speed to 2 does not have any affect when tried on that very device. I don't know why, but setting it to the following device has the desired effect:
+
+    00:01.0 PCI bridge: Intel Corporation 5400 Chipset PCI Express Port 1 (rev 20)
+
+That's what people have also been successfully doing using pcitools, but it took me a while to realize that. In my case 
+
+    Usage: sudo ./lnkspd 00 01 00 2
+    
+does it! I now have 1400MB/s read write speed!
