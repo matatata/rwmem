@@ -1,4 +1,4 @@
-all: rdmem wrmem rdpci
+all: rdmem wrmem rdpci lnkspd
 
 rdmem: rdmem.o DirectHW.o
 	$(CC) -o $@ $^ -framework IOKit
@@ -8,8 +8,11 @@ wrmem: wrmem.o DirectHW.o
 rdpci: rdpci.o DirectHW.o
 	$(CC) -o $@ $^ -framework IOKit
 
+lnkspd: lnkspd.o DirectHW.o
+	$(CC) -o $@ $^ -framework IOKit
+
 clean:
-	$(RM) *.o .*.d rdmem
+	$(RM) *.o .*.d rdmem wrmem lnkspd rdpci
 
 CFLAGS = \
 	-g \
