@@ -17,17 +17,15 @@ chainsaw/sledgehammer/atomic-bomb that you're looking for.
 
 Loading the `DirectHW.kext` gives any root process the ability to
 poke anywhere on the system.  It is basically a deliberate backdoor
-in the kernel.  You can download it from Snare's site, if you trust him
-more than the one bundled in this repository:
-http://ho.ax/downloads/DirectHW.dmg
+in the kernel.  You build and install it using my fork https://github.com/matatata/directhw
 
 Usage
 ===
 
-After installing the `DirectHW.dmg` file, load the kernel extension
+After building and installing my DirectHW fort, load the kernel extension
 as root:
 
-    sudo kextutil /System/Library/Extensions/DirectHW.kext
+    sudo kextutil /usr/local/share/DirectHW.kext
 
 Read your machine's serial number:
 
@@ -37,6 +35,10 @@ Read the "BIOS Region" of your boot ROM for analysis (the flash descriptor,
 Intel management engine and gig-e sections show up as all 0xFF):
 
     sudo ./rdmem 0xff990000 0x670000 > mac-bios.bin
+    
+If you're done unload the kext
+
+    sudo kextunload -b com.apple.driver.DirectHW
 
 NOTES
 ===
