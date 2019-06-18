@@ -15,7 +15,7 @@
 #include <strings.h>
 #include <ctype.h>
 #include <unistd.h>
-#include "DirectHW.h"
+#include <DirectHW/DirectHW.h>
 
 static char
 printable(

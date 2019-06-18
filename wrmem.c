@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "DirectHW.h"
+#include <DirectHW/DirectHW.h>
 
 int
 main(

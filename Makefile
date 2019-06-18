@@ -1,15 +1,18 @@
+
+CC=clang
+LDFLAGS=-framework IOKit -framework DirectHW -F/Library/Frameworks
 all: rdmem wrmem rdpci lnkspd
 
-rdmem: rdmem.o DirectHW.o
-	$(CC) -o $@ $^ -framework IOKit
-wrmem: wrmem.o DirectHW.o
-	$(CC) -o $@ $^ -framework IOKit
+rdmem: rdmem.o 
+	$(CC) -o $@ $^  $(LDFLAGS)
+wrmem: wrmem.o 
+	$(CC) -o $@ $^ $(LDFLAGS)
 
-rdpci: rdpci.o DirectHW.o
-	$(CC) -o $@ $^ -framework IOKit
+rdpci: rdpci.o
+	$(CC) -o $@ $^ $(LDFLAGS)
 
-lnkspd: lnkspd.o DirectHW.o
-	$(CC) -o $@ $^ -framework IOKit
+lnkspd: lnkspd.o 
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:
 	$(RM) *.o .*.d rdmem wrmem lnkspd rdpci
@@ -20,6 +23,7 @@ CFLAGS = \
 	-W \
 	-Wall \
 	-MMD \
-	-MF .$(notdir $@).d
+	-MF .$(notdir $@).d \
+	-F/Library/Frameworks
 
 -include .*.d
